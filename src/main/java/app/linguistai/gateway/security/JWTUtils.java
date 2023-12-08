@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -13,8 +14,11 @@ import javax.crypto.SecretKey;
 
 @Component
 public class JWTUtils {
-    private String accessSignKey = "broccoliisthegreatestfoodinthewholeuniverse";
-    private String refreshSignKey = "pizzaisalsogoodbutnotreallygoodwithoutbroccoli"; //TODO move to application prop
+    @Value("${spring.jwt.access.key}")
+    private String accessSignKey;
+
+    @Value("${spring.jwt.refresh.key}")
+    private String refreshSignKey; //TODO move to application prop
 
     private Claims extractAllClaims(String token, String signKey)  {
         SecretKey key = Keys.hmacShaKeyFor(signKey.getBytes(StandardCharsets.UTF_8));
