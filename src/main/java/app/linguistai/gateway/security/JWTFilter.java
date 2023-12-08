@@ -1,117 +1,96 @@
 package app.linguistai.gateway.security;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
-import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
-public class JWTFilter extends OncePerRequestFilter {
-    private final static String TOKEN_BEARER_PREFIX = "Bearer";
+public class JWTFilter implements GatewayFilter {
 
-    @Autowired
-    private JWTUserService jwtUserService;
+    private final static String TOKEN_BEARER_PREFIX = "Bearer";
 
     @Autowired
     private JWTUtils jwtUtils;
 
-    /**
-     * @pre make sure that token is not null
-     * @param token
-     * @return
-     * @throws Exception
-     */
-    public static String getTokenWithoutBearer(String token) throws Exception {
+    @Autowired
+    private RouterValidator routerValidator;
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // if request endpoint is included in the whitelist, do not apply filter
+        System.out.println("current request:" + exchange.getRequest().getPath().value());
+        if (!routerValidator.isSecured.test(exchange.getRequest())) {
+            return chain.filter(exchange);
+        }
+
+        // TODO fix this code
+        String tokenHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+        String username = "";
+        String token = "";
+        String currentEndpoint = exchange.getRequest().getPath().value();
+
+        if (tokenHeader == null || !tokenHeader.startsWith(TOKEN_BEARER_PREFIX)) {
+            return Mono.error(new Exception("Token is not found"));
+        }
+
+        try {
+            token = getTokenWithoutBearer(tokenHeader);
+        } catch (Exception exc) {
+            // Handle exception
+            return Mono.error(exc);
+        }
+
+        boolean isCurrentRefresh = currentEndpoint.equals("/api/v1/auth/refresh");
+
+        try {
+            // extract the token based on its type
+            if (isCurrentRefresh) {
+                username = jwtUtils.extractRefreshUsername(token);
+            } else {
+                username = jwtUtils.extractAccessUsername(token);
+            }
+
+            final String USERNAME = username;
+
+            // if username cannotbe extracted from the token, send error message
+            if (USERNAME == null) {
+                return Mono.error(new Exception("Username is not valid"));
+            }
+
+            // if token in the header is refresh token and it is expired, send error message
+            if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
+                return Mono.error(new Exception("Refresh token is invalid"));
+            }
+
+            // if token in the header is access token and it is expired, send error message
+            if (jwtUtils.isAccessTokenExpired(token)) {
+                return Mono.error(new Exception("Access token is invalid"));
+            }
+
+            // remove token from the header, so that microservices do not need to authorize users
+            exchange.getRequest().mutate().headers(httpHeaders -> httpHeaders.remove(HttpHeaders.AUTHORIZATION));
+
+            // add username and role to the headers, so that microservices can use it
+            exchange.getRequest().mutate().headers(httpHeaders -> httpHeaders.add("username", USERNAME));
+
+            return chain.filter(exchange);
+        } catch (Exception e) {
+            // Handle exceptions
+            return Mono.error(e);
+        }
+    }
+
+    private String getTokenWithoutBearer(String token) throws Exception {
         if (token == null) {
             throw new Exception("Token is not found!");
         }
 
         return token.substring(TOKEN_BEARER_PREFIX.length());
     }
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        String tokenHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        System.out.println("path: " + request.getServletPath());
-
-        String username = "";
-        String token = "";
-        String currentEndpoint = request.getServletPath();
-
-        if (tokenHeader == null || !tokenHeader.startsWith(TOKEN_BEARER_PREFIX)) {
-            System.out.println("no token is found");
-            filterChain.doFilter(request, response);
-            return;
-        }
-        
-        try { //????
-            token = getTokenWithoutBearer(tokenHeader);
-        } catch (Exception exc) {
-            exc.printStackTrace();
-            try {
-                throw exc;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        boolean isCurrentRefresh = currentEndpoint.equals("/api/v1/auth/refresh");
-
-        try {
-            // set username according to the token type
-            if (isCurrentRefresh) {
-                username = jwtUtils.extractRefreshUsername(token);
-            } else {
-                username = jwtUtils.extractAccessUsername(token);
-            }            
-
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails user = jwtUserService.loadUserByUsername(username);
-
-                if (isCurrentRefresh && jwtUtils.validateRefreshToken(token, user) || jwtUtils.validateAccessToken(token, user)) {
-                    System.out.println("here is here: " + user.getPassword());
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                } 
-                // else if (JWTUtils.validateAccessToken(token, user)) {
-                //     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                //     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                //     SecurityContextHolder.getContext().setAuthentication(authToken);
-                // }
-                 else {
-                    System.out.println("token is not valid");
-                }
-            } else {
-                System.out.println("username is not valid");
-            }
-    
-            filterChain.doFilter(request, response);
-        } catch (JwtException e) {
-            System.out.println("JWT token cannot be verified");
-            throw e;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Unable to get JWT Token");
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }        
-    }
-    
 }
