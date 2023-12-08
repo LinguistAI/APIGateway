@@ -22,6 +22,7 @@ public class JWTFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        
         // if request endpoint is included in the whitelist, do not apply filter
         System.out.println("current request:" + exchange.getRequest().getPath().value());
         if (!routerValidator.isSecured.test(exchange.getRequest())) {
