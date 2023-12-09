@@ -18,7 +18,7 @@ public class JWTUtils {
     private String accessSignKey;
 
     @Value("${spring.jwt.refresh.key}")
-    private String refreshSignKey; //TODO move to application prop
+    private String refreshSignKey;
 
     private Claims extractAllClaims(String token, String signKey)  {
         SecretKey key = Keys.hmacShaKeyFor(signKey.getBytes(StandardCharsets.UTF_8));

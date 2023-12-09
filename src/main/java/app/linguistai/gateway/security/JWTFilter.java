@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
+import app.linguistai.consts.Header;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -22,7 +23,7 @@ public class JWTFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        
+
         // if request endpoint is included in the whitelist, do not apply filter
         System.out.println("current request:" + exchange.getRequest().getPath().value());
         if (!routerValidator.isSecured.test(exchange.getRequest())) {
@@ -50,6 +51,16 @@ public class JWTFilter implements GatewayFilter {
         boolean isCurrentRefresh = currentEndpoint.equals("/api/v1/auth/refresh");
 
         try {
+            // if token in the header is refresh token and it is expired, send error message
+            if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
+                return Mono.error(new Exception("Refresh token is invalid"));
+            }
+
+            // if token in the header is access token and it is expired, send error message
+            if (!isCurrentRefresh && jwtUtils.isAccessTokenExpired(token)) {
+                return Mono.error(new Exception("Access token is invalid"));
+            }
+
             // extract the token based on its type
             if (isCurrentRefresh) {
                 username = jwtUtils.extractRefreshUsername(token);
@@ -64,21 +75,13 @@ public class JWTFilter implements GatewayFilter {
                 return Mono.error(new Exception("Username is not valid"));
             }
 
-            // if token in the header is refresh token and it is expired, send error message
-            if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
-                return Mono.error(new Exception("Refresh token is invalid"));
-            }
-
-            // if token in the header is access token and it is expired, send error message
-            if (jwtUtils.isAccessTokenExpired(token)) {
-                return Mono.error(new Exception("Access token is invalid"));
-            }
-
-            // remove token from the header, so that microservices do not need to authorize users
-            exchange.getRequest().mutate().headers(httpHeaders -> httpHeaders.remove(HttpHeaders.AUTHORIZATION));
+            if (!isCurrentRefresh) {
+                // remove token from the header, so that microservices do not need to authorize users
+                exchange.getRequest().mutate().headers(httpHeaders -> httpHeaders.remove(HttpHeaders.AUTHORIZATION));
+            }            
 
             // add username and role to the headers, so that microservices can use it
-            exchange.getRequest().mutate().headers(httpHeaders -> httpHeaders.add("username", USERNAME));
+            exchange.getRequest().mutate().headers(httpHeaders -> httpHeaders.add(Header.USER_EMAIL, USERNAME));
 
             return chain.filter(exchange);
         } catch (Exception e) {
