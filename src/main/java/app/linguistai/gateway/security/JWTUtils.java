@@ -39,7 +39,11 @@ public class JWTUtils {
     }
 
     public boolean isAccessTokenExpired(String token) {
-        return extractAccessExpiration(token).before(new Date());
+        try {
+            return extractAccessExpiration(token).before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     public Date extractRefreshExpiration(String token) {
@@ -51,6 +55,10 @@ public class JWTUtils {
     }
 
     public boolean isRefreshTokenExpired(String token) {
-        return extractRefreshExpiration(token).before(new Date());
+        try {
+            return extractRefreshExpiration(token).before(new Date());
+        } catch (Exception e) {
+            return true;
+        }        
     }
 }

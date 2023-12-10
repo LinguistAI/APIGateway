@@ -7,7 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
-import app.linguistai.consts.Header;
+import app.linguistai.gateway.consts.Header;
+import app.linguistai.gateway.exception.JWTException;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -25,12 +26,10 @@ public class JWTFilter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         // if request endpoint is included in the whitelist, do not apply filter
-        System.out.println("current request:" + exchange.getRequest().getPath().value());
         if (!routerValidator.isSecured.test(exchange.getRequest())) {
             return chain.filter(exchange);
         }
 
-        // TODO fix this code
         String tokenHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         String username = "";
@@ -38,14 +37,14 @@ public class JWTFilter implements GatewayFilter {
         String currentEndpoint = exchange.getRequest().getPath().value();
 
         if (tokenHeader == null || !tokenHeader.startsWith(TOKEN_BEARER_PREFIX)) {
-            return Mono.error(new Exception("Token is not found"));
+            return Mono.error(new JWTException("Token is not found!"));
         }
 
         try {
             token = getTokenWithoutBearer(tokenHeader);
         } catch (Exception exc) {
             // Handle exception
-            return Mono.error(exc);
+            return Mono.error(new JWTException("Token is not in the appropriate form!"));
         }
 
         boolean isCurrentRefresh = currentEndpoint.equals("/api/v1/auth/refresh");
@@ -53,12 +52,12 @@ public class JWTFilter implements GatewayFilter {
         try {
             // if token in the header is refresh token and it is expired, send error message
             if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
-                return Mono.error(new Exception("Refresh token is invalid"));
+                return Mono.error(new JWTException("Refresh token is invalid!"));
             }
 
             // if token in the header is access token and it is expired, send error message
             if (!isCurrentRefresh && jwtUtils.isAccessTokenExpired(token)) {
-                return Mono.error(new Exception("Access token is invalid"));
+                return Mono.error(new JWTException("Access token is invalid!"));
             }
 
             // extract the token based on its type
@@ -72,7 +71,7 @@ public class JWTFilter implements GatewayFilter {
 
             // if username cannotbe extracted from the token, send error message
             if (USERNAME == null) {
-                return Mono.error(new Exception("Username is not valid"));
+                return Mono.error(new JWTException("Username is not valid!"));
             }
 
             if (!isCurrentRefresh) {
@@ -86,7 +85,7 @@ public class JWTFilter implements GatewayFilter {
             return chain.filter(exchange);
         } catch (Exception e) {
             // Handle exceptions
-            return Mono.error(e);
+            return Mono.error(new JWTException("Something went wrong!", e));
         }
     }
 
