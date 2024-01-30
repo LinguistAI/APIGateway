@@ -29,3 +29,5 @@ secrets.properties
 # application.yml
 target/*
 target
+.idea
+.idea/*

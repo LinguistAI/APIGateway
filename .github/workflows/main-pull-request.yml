@@ -26,3 +26,4 @@ jobs:
         URI_USER_SERVICE: ${{ vars.URI_USER_SERVICE }}
         URI_DICTIONARY_SERVICE: ${{ vars.URI_DICTIONARY_SERVICE }}
         URI_ML_SERVICE: ${{ vars.URI_ML_SERVICE }}
+        BASE_PREFIX: ${{ vars.BASE_PREFIX }}
