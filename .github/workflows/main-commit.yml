@@ -30,7 +30,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@master
       with:
-        name: gateway-dev-artifact
+        name: gateway-main-artifact
         path: .
 
   publish:
@@ -40,7 +40,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@master
       with:
-        name: gateway-dev-artifact
+        name: gateway-main-artifact
         path: .
 
     - name: Login to DockerHub

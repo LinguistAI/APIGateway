@@ -30,7 +30,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@master
       with:
-        name: backend-dev-artifact
+        name: gateway-dev-artifact
         path: .
 
   publish:
