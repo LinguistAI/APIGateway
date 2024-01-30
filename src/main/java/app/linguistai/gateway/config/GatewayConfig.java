@@ -32,9 +32,9 @@ public class GatewayConfig {
     public static final HashMap<String, String> ROUTES = new HashMap<>();
 
     static {
-        ROUTES.put(DICTINOARY_SERVICE_ID, "/api/v1/dictionary/**");
-        ROUTES.put(ML_ID, "/api/v1/ml/**");
-        ROUTES.put(USER_SERVICE_ID, "/api/v1/**");
+        ROUTES.put(DICTINOARY_SERVICE_ID, "/dev/api/v1/dictionary/**");
+        ROUTES.put(ML_ID, "/dev/api/v1/ml/**");
+        ROUTES.put(USER_SERVICE_ID, "/dev/api/v1/**");
     }
 
 
