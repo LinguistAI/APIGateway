@@ -9,16 +9,20 @@ import java.util.function.Predicate;
 @Component
 public class RouterValidator {
 
+
+    @Value("${spring.base.prefix}")
+    private String BASE_PREFIX;
+
     public static final List<String> openApiEndpoints = List.of(
-        "/api/v1/v3/api-docs/**",
-        "/api/v1/swagger-ui/**",
-        "/api/v1/auth/hello",
-        "/api/v1/auth/login",
-        "/api/v1/auth/register",
-        "/api/v1/auth/request-reset",
-        "/api/v1/auth/test-reset",
-        "/api/v1/auth/validate-reset",
-        "/api/v1/auth/reset-password"
+        BASE_PREFIX + "/v3/api-docs/**",
+        BASE_PREFIX + "/swagger-ui/**",
+        BASE_PREFIX + "/auth/hello",
+        BASE_PREFIX + "/auth/login",
+        BASE_PREFIX + "/auth/register",
+        BASE_PREFIX + "/auth/request-reset",
+        BASE_PREFIX + "/auth/test-reset",
+        BASE_PREFIX + "/auth/validate-reset",
+        BASE_PREFIX + "/auth/reset-password"
     );
 
     public Predicate<ServerHttpRequest> isSecured =
