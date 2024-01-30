@@ -21,6 +21,7 @@ public class GatewayConfig {
     
     @Value("${spring.uri.dictionary}")
     private String URI_DICTIONARY;
+
     @Value("${spring.uri.ml}")
     private String URI_ML;
 

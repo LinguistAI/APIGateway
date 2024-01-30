@@ -2,6 +2,7 @@ package app.linguistai.gateway.config;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.function.Predicate;
