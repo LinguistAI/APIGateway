@@ -12,7 +12,7 @@ public class RouterValidator {
 
 
     @Value("${spring.base.prefix}")
-    private String BASE_PREFIX;
+    private static String BASE_PREFIX;
 
     public static final List<String> openApiEndpoints = List.of(
         BASE_PREFIX + "/v3/api-docs/**",

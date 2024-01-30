@@ -26,7 +26,7 @@ public class GatewayConfig {
     private String URI_ML;
 
     @Value("${spring.base.prefix}")
-    private String BASE_PREFIX;
+    private static String BASE_PREFIX;
 
     public static final String DICTINOARY_SERVICE_ID = "dictionary-service";
     public static final String USER_SERVICE_ID = "user-service";
