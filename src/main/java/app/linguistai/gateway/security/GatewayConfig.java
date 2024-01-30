@@ -20,14 +20,19 @@ public class GatewayConfig {
     
     @Value("${spring.uri.dictionary}")
     private String URI_DICTIONARY;
+    
+    @Value("${spring.uri.ml}")
+    private String URI_ML;
 
     public static final String DICTINOARY_SERVICE_ID = "dictionary-service";
     public static final String USER_SERVICE_ID = "user-service";
+    public static final String ML_ID = "ml-service";
 
     public static final HashMap<String, String> ROUTES = new HashMap<>();
 
     static {
         ROUTES.put(DICTINOARY_SERVICE_ID, "/api/v1/dictionary/**");
+        ROUTES.put(ML_ID, "/api/v1/ml/**");
         ROUTES.put(USER_SERVICE_ID, "/api/v1/**");
     }
 
@@ -37,6 +42,9 @@ public class GatewayConfig {
                 .route(DICTINOARY_SERVICE_ID, r -> r.path(ROUTES.get(DICTINOARY_SERVICE_ID))
                         .filters(f -> f.filter(filter))
                         .uri(URI_DICTIONARY))
+                .route(ML_ID, r -> r.path(ROUTES.get(ML_ID))
+                        .filters(f -> f.filter(filter).rewritePath("/api/v1/ml/(?<remaining>.*)", "/${remaining}"))
+                        .uri(URI_ML))
                 .route(USER_SERVICE_ID, r -> r.path(ROUTES.get(USER_SERVICE_ID))
                         .filters(f -> f.filter(filter))
                         .uri(URI_USER))                

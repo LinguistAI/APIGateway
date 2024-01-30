@@ -52,6 +52,7 @@ public class JWTFilter implements GatewayFilter {
         try {
             // if token in the header is refresh token and it is expired, send error message
             if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
+
                 return Mono.error(new JWTException("Refresh token is invalid!"));
             }
 
@@ -85,6 +86,7 @@ public class JWTFilter implements GatewayFilter {
             return chain.filter(exchange);
         } catch (Exception e) {
             // Handle exceptions
+            System.out.println("alio");
             return Mono.error(new JWTException("Something went wrong!", e));
         }
     }
