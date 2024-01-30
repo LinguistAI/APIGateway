@@ -1,0 +1,13 @@
+server:
+    port: 8080
+
+spring:
+    application:
+        name: api-gateway
+    cloud:
+        gateway:
+            default-filters:
+                - ErrorFilter
+            discovery:
+                locator:
+                    enabled: true
