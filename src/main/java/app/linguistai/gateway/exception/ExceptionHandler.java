@@ -21,7 +21,9 @@ public class ExceptionHandler implements ErrorWebExceptionHandler {
     
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+        System.out.println("aloooooo");
         Logger.error(ex.getMessage());
+        ex.printStackTrace();
 
         if (ex instanceof java.net.ConnectException || ex instanceof org.springframework.web.client.ResourceAccessException) {
             return handleMicroserviceNotWorking(exchange, ex);
@@ -30,7 +32,6 @@ public class ExceptionHandler implements ErrorWebExceptionHandler {
         } else if (ex instanceof JWTException) {
             return handleJWTException(exchange, (JWTException) ex);
         } else {
-            ex.printStackTrace();
             return Mono.error(ex);
         }        
     }
