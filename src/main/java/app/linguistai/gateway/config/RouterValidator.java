@@ -12,19 +12,28 @@ public class RouterValidator {
 
 
     @Value("${spring.base.prefix}")
-    private static String BASE_PREFIX;
+    private String BASE_PREFIX;
 
-    public static final List<String> openApiEndpoints = List.of(
-        BASE_PREFIX + "/v3/api-docs/**",
-        BASE_PREFIX + "/swagger-ui/**",
-        BASE_PREFIX + "/auth/hello",
-        BASE_PREFIX + "/auth/login",
-        BASE_PREFIX + "/auth/register",
-        BASE_PREFIX + "/auth/request-reset",
-        BASE_PREFIX + "/auth/test-reset",
-        BASE_PREFIX + "/auth/validate-reset",
-        BASE_PREFIX + "/auth/reset-password"
-    );
+    public static List<String> openApiEndpoints;
+
+    private void initializeOpenApiEndpoints() {
+        openApiEndpoints = List.of(
+                BASE_PREFIX + "/v3/api-docs/**",
+                BASE_PREFIX + "/swagger-ui/**",
+                BASE_PREFIX + "/auth/hello",
+                BASE_PREFIX + "/auth/login",
+                BASE_PREFIX + "/auth/register",
+                BASE_PREFIX + "/auth/request-reset",
+                BASE_PREFIX + "/auth/test-reset",
+                BASE_PREFIX + "/auth/validate-reset",
+                BASE_PREFIX + "/auth/reset-password"
+        );
+    }
+
+    @PostConstruct
+    public void init() {
+        initializeOpenApiEndpoints();
+    }
 
     public Predicate<ServerHttpRequest> isSecured =
             request -> openApiEndpoints

@@ -26,7 +26,7 @@ public class GatewayConfig {
     private String URI_ML;
 
     @Value("${spring.base.prefix}")
-    private static String BASE_PREFIX;
+    private String BASE_PREFIX;
 
     public static final String DICTINOARY_SERVICE_ID = "dictionary-service";
     public static final String USER_SERVICE_ID = "user-service";
@@ -34,7 +34,8 @@ public class GatewayConfig {
 
     public static final HashMap<String, String> ROUTES = new HashMap<>();
 
-    static {
+    @PostConstruct
+    public void init() {
         ROUTES.put(DICTINOARY_SERVICE_ID, BASE_PREFIX + "/dictionary/**");
         ROUTES.put(ML_ID, BASE_PREFIX + "/**");
         ROUTES.put(USER_SERVICE_ID, BASE_PREFIX + "/**");
