@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +37,12 @@ public class GatewayConfig {
         ROUTES.put(USER_SERVICE_ID, "/api/v1/**");
     }
 
+
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
+        System.out.println("user env: " + URI_USER);
+        System.out.println("dic env: " + URI_DICTIONARY);
+        System.out.println("ml env: " + URI_ML);
         return builder.routes()
                 .route(DICTINOARY_SERVICE_ID, r -> r.path(ROUTES.get(DICTINOARY_SERVICE_ID))
                         .filters(f -> f.filter(filter))
@@ -49,6 +54,15 @@ public class GatewayConfig {
                         .filters(f -> f.filter(filter))
                         .uri(URI_USER))                
                 .build();
+    }
+
+    @Bean
+    public GlobalFilter globalFilter() {
+        return (exchange, chain) -> {
+            // Log the request details for every incoming request
+            System.out.println("Incoming request: " + exchange.getRequest().getURI());
+            return chain.filter(exchange);
+        };
     }
 
 }
