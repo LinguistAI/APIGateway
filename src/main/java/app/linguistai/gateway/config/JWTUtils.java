@@ -1,4 +1,4 @@
-package app.linguistai.gateway.security;
+package app.linguistai.gateway.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

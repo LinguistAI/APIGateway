@@ -1,4 +1,4 @@
-package app.linguistai.gateway.security;
+package app.linguistai.gateway.config;
 
 import java.util.HashMap;
 
@@ -43,7 +43,7 @@ public class GatewayConfig {
                         .filters(f -> f.filter(filter))
                         .uri(URI_DICTIONARY))
                 .route(ML_ID, r -> r.path(ROUTES.get(ML_ID))
-                        .filters(f -> f.filter(filter).rewritePath("/api/v1/ml/(?<remaining>.*)", "/${remaining}"))
+                        .filters(f -> f.filter(filter))
                         .uri(URI_ML))
                 .route(USER_SERVICE_ID, r -> r.path(ROUTES.get(USER_SERVICE_ID))
                         .filters(f -> f.filter(filter))

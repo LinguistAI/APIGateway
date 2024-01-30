@@ -11,6 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import app.linguistai.gateway.utils.Logger;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -20,16 +21,18 @@ public class ExceptionHandler implements ErrorWebExceptionHandler {
     
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-        
+        Logger.error(ex.getMessage());
+
         if (ex instanceof java.net.ConnectException || ex instanceof org.springframework.web.client.ResourceAccessException) {
             return handleMicroserviceNotWorking(exchange, ex);
         } else if (ex instanceof ResponseStatusException) {
             return handleResponseStatusException(exchange, (ResponseStatusException) ex);
         } else if (ex instanceof JWTException) {
             return handleJWTException(exchange, (JWTException) ex);
-        }
-
-        return Mono.error(ex);
+        } else {
+            ex.printStackTrace();
+            return Mono.error(ex);
+        }        
     }
 
     private Mono<Void> handleResponseStatusException(ServerWebExchange exchange, ResponseStatusException ex) {

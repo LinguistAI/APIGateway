@@ -1,4 +1,4 @@
-package app.linguistai.gateway.security;
+package app.linguistai.gateway.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -53,12 +53,12 @@ public class JWTFilter implements GatewayFilter {
             // if token in the header is refresh token and it is expired, send error message
             if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
 
-                return Mono.error(new JWTException("Refresh token is invalid!"));
+                return Mono.error(new JWTException("Refresh token is expired!"));
             }
 
             // if token in the header is access token and it is expired, send error message
             if (!isCurrentRefresh && jwtUtils.isAccessTokenExpired(token)) {
-                return Mono.error(new JWTException("Access token is invalid!"));
+                return Mono.error(new JWTException("Access token is expired!"));
             }
 
             // extract the token based on its type
