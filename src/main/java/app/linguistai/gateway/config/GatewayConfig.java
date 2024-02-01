@@ -38,7 +38,7 @@ public class GatewayConfig {
     @PostConstruct
     public void init() {
         ROUTES.put(DICTINOARY_SERVICE_ID, BASE_PREFIX + "/dictionary/**");
-        ROUTES.put(ML_ID, BASE_PREFIX + "/**");
+        ROUTES.put(ML_ID, BASE_PREFIX + "/ml/**");
         ROUTES.put(USER_SERVICE_ID, BASE_PREFIX + "/**");
     }
 
@@ -48,6 +48,8 @@ public class GatewayConfig {
         System.out.println("user env: " + URI_USER);
         System.out.println("dic env: " + URI_DICTIONARY);
         System.out.println("ml env: " + URI_ML);
+        System.out.println(ROUTES.entrySet());
+        
         return builder.routes()
                 .route(DICTINOARY_SERVICE_ID, r -> r.path(ROUTES.get(DICTINOARY_SERVICE_ID))
                         .filters(f -> f.filter(filter))
