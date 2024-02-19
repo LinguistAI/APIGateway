@@ -10,6 +10,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class GatewayConfig {
@@ -40,14 +41,15 @@ public class GatewayConfig {
         ROUTES.put(DICTINOARY_SERVICE_ID, BASE_PREFIX + "/dictionary/**");
         ROUTES.put(ML_ID, BASE_PREFIX + "/ml/**");
         ROUTES.put(USER_SERVICE_ID, BASE_PREFIX + "/**");
+
+        System.out.println("Routes initialized: " + ROUTES);
     }
 
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {
-        System.out.println("user env: " + URI_USER);
-        System.out.println("dic env: " + URI_DICTIONARY);
-        System.out.println("ml env: " + URI_ML);
+        System.out.println("Configuring routes for services: User: " + URI_USER + ", Dictionary: " + URI_DICTIONARY + ", ML: " + URI_ML);
+
         System.out.println(ROUTES.entrySet());
         
         return builder.routes()
@@ -68,7 +70,22 @@ public class GatewayConfig {
         return (exchange, chain) -> {
             // Log the request details for every incoming request
             System.out.println("Incoming request: " + exchange.getRequest().getURI());
-            return chain.filter(exchange);
+
+            return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+                // Attempt to log the redirected URI from the Location header
+                System.out.println("Response status code: " + exchange.getResponse().getStatusCode());
+                System.out.println("Response headers: " + exchange.getResponse().getHeaders());
+                exchange.getResponse().getHeaders().getLocation();
+                if (exchange.getResponse().getStatusCode() != null &&
+                        exchange.getResponse().getStatusCode().is3xxRedirection() &&
+                        exchange.getResponse().getHeaders().getLocation() != null) {
+                    // If there's a redirection, log the Location header
+                    System.out.println("Redirected URI: " + exchange.getResponse().getHeaders().getLocation());
+                } else {
+                    // Log that there's no redirection or the response is not yet committed
+                    System.out.println("No redirection or response not yet committed for: " + exchange.getRequest().getURI());
+                }
+            }));
         };
     }
 
