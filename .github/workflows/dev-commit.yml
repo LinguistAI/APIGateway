@@ -76,5 +76,5 @@ jobs:
           docker pull linguistai/gateway-dev:latest
           docker stop gateway-dev
           docker rm gateway-dev
-          cd /home/${{ secrets.DOCKERHUB_USERNAME }}/LinguistAI-dev
+          cd /home/${{ secrets.SSH_USERNAME }}/LinguistAI-dev
           docker-compose up -d
