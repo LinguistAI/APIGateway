@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 public class RouterValidator {
@@ -15,12 +17,14 @@ public class RouterValidator {
     @Value("${spring.base.prefix}")
     private String BASE_PREFIX;
 
-    public static List<String> openApiEndpoints;
+    public static List<Pattern> openApiEndpointPatterns;
 
     private void initializeOpenApiEndpoints() {
-        openApiEndpoints = List.of(
-                BASE_PREFIX + "/v3/api-docs/**",
-                BASE_PREFIX + "/swagger-ui/**",
+        List<String> endpointPatterns = List.of(
+
+                BASE_PREFIX + "/v3/api-docs",
+                BASE_PREFIX + "/v3/api-docs/.*",
+                BASE_PREFIX + "/swagger-ui/.*",
                 BASE_PREFIX + "/auth/hello",
                 BASE_PREFIX + "/auth/login",
                 BASE_PREFIX + "/auth/register",
@@ -28,15 +32,20 @@ public class RouterValidator {
                 BASE_PREFIX + "/auth/test-reset",
                 BASE_PREFIX + "/auth/validate-reset",
                 BASE_PREFIX + "/auth/reset-password",
-            
                 BASE_PREFIX + "/ml/swagger",
                 BASE_PREFIX + "/ml/redoc",
-                BASE_PREFIX + "/ml/redoc/**",
-                BASE_PREFIX + "/ml/swagger/**",
-                BASE_PREFIX + "/ml/static/**",
+                BASE_PREFIX + "/ml/redoc/.*",
+                BASE_PREFIX + "/ml/swagger/.*",
+                BASE_PREFIX + "/ml/static/.*",
                 BASE_PREFIX + "/ml/static",
                 BASE_PREFIX + "/auth/reset-password"
+
         );
+
+        // Convert endpoint patterns to regex patterns
+        openApiEndpointPatterns = endpointPatterns.stream()
+                .map(Pattern::compile)
+                .collect(Collectors.toList());
     }
 
     @PostConstruct
@@ -45,8 +54,8 @@ public class RouterValidator {
     }
 
     public Predicate<ServerHttpRequest> isSecured =
-            request -> openApiEndpoints
-                    .stream()
-                    .noneMatch(uri -> request.getURI().getPath().equals(uri));
+            request -> openApiEndpointPatterns.stream()
+                    .noneMatch(pattern -> pattern.matcher(request.getURI().getPath()).matches());
+
 
 }
