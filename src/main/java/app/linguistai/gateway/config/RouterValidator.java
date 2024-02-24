@@ -27,6 +27,14 @@ public class RouterValidator {
                 BASE_PREFIX + "/auth/request-reset",
                 BASE_PREFIX + "/auth/test-reset",
                 BASE_PREFIX + "/auth/validate-reset",
+                BASE_PREFIX + "/auth/reset-password",
+            
+                BASE_PREFIX + "/ml/swagger",
+                BASE_PREFIX + "/ml/redoc",
+                BASE_PREFIX + "/ml/redoc/**",
+                BASE_PREFIX + "/ml/swagger/**",
+                BASE_PREFIX + "/ml/static/**",
+                BASE_PREFIX + "/ml/static",
                 BASE_PREFIX + "/auth/reset-password"
         );
     }
