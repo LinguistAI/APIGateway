@@ -38,6 +38,7 @@ public class RouterValidator {
                 BASE_PREFIX + "/ml/swagger/.*",
                 BASE_PREFIX + "/ml/static/.*",
                 BASE_PREFIX + "/ml/static",
+                BASE_PREFIX + "/ml/ping.*",
                 BASE_PREFIX + "/auth/reset-password"
 
         );
