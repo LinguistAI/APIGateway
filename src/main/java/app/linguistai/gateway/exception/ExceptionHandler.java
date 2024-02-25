@@ -21,7 +21,6 @@ public class ExceptionHandler implements ErrorWebExceptionHandler {
     
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-        System.out.println("aloooooo");
         Logger.error(ex.getMessage());
         ex.printStackTrace();
 
