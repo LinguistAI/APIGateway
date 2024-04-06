@@ -9,6 +9,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import app.linguistai.gateway.consts.Header;
 import app.linguistai.gateway.exception.JWTException;
+import app.linguistai.gateway.exception.UnauthorizedException;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -24,7 +25,6 @@ public class JWTFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        System.out.println("Request to: " + exchange.getRequest().getURI());
         // if request endpoint is included in the whitelist, do not apply filter
         if (!routerValidator.isSecured.test(exchange.getRequest())) {
             return chain.filter(exchange);
@@ -52,13 +52,14 @@ public class JWTFilter implements GatewayFilter {
         try {
             // if token in the header is refresh token and it is expired, send error message
             if (isCurrentRefresh && jwtUtils.isRefreshTokenExpired(token)) {
-
-                return Mono.error(new JWTException("Refresh token is expired!"));
+                System.out.println("Refresh token is expired");
+                return Mono.error(new UnauthorizedException());
             }
 
             // if token in the header is access token and it is expired, send error message
             if (!isCurrentRefresh && jwtUtils.isAccessTokenExpired(token)) {
-                return Mono.error(new JWTException("Access token is expired!"));
+                System.out.println("Access token is expired");
+                return Mono.error(new UnauthorizedException());
             }
 
             // extract the token based on its type
@@ -86,8 +87,7 @@ public class JWTFilter implements GatewayFilter {
             return chain.filter(exchange);
         } catch (Exception e) {
             // Handle exceptions
-            System.out.println("alio");
-            return Mono.error(new JWTException("Something went wrong!", e));
+            return Mono.error(new JWTException("Something went wrong!"));
         }
     }
 
