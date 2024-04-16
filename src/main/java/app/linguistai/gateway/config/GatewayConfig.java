@@ -72,18 +72,12 @@ public class GatewayConfig {
             System.out.println("Incoming request: " + exchange.getRequest().getURI());
 
             return chain.filter(exchange).then(Mono.fromRunnable(() -> {
-                // Attempt to log the redirected URI from the Location header
-                System.out.println("Response status code: " + exchange.getResponse().getStatusCode());
-                System.out.println("Response headers: " + exchange.getResponse().getHeaders());
                 exchange.getResponse().getHeaders().getLocation();
                 if (exchange.getResponse().getStatusCode() != null &&
                         exchange.getResponse().getStatusCode().is3xxRedirection() &&
                         exchange.getResponse().getHeaders().getLocation() != null) {
                     // If there's a redirection, log the Location header
                     System.out.println("Redirected URI: " + exchange.getResponse().getHeaders().getLocation());
-                } else {
-                    // Log that there's no redirection or the response is not yet committed
-                    System.out.println("No redirection or response not yet committed for: " + exchange.getRequest().getURI());
                 }
             }));
         };
