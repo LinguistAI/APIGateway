@@ -28,22 +28,6 @@ jobs:
         URI_ML_SERVICE: ${{ vars.URI_ML_SERVICE }}
         BASE_PREFIX: ${{ vars.BASE_PREFIX }}
 
-    - name: Upload build artifact
-      uses: actions/upload-artifact@master
-      with:
-        name: gateway-main-artifact
-        path: .
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - name: Download build artifact
-      uses: actions/download-artifact@master
-      with:
-        name: gateway-main-artifact
-        path: .
-
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:
@@ -61,7 +45,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
   deploy:
-    needs: publish
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Docker Pull & Run From DockerHub
