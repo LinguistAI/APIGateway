@@ -41,6 +41,7 @@ public class RouterValidator {
                 BASE_PREFIX + "/ml/ping.*",
                 BASE_PREFIX + "/ml/admin.*",
                 BASE_PREFIX + "/ping.*",
+                BASE_PREFIX + "/dictionary/ping.*",
                 BASE_PREFIX + "/auth/reset-password"
 
         );
