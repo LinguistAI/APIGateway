@@ -22,14 +22,13 @@ public class ExceptionHandler implements ErrorWebExceptionHandler {
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         Logger.error(ex.getMessage());
-        ex.printStackTrace();
 
         if (ex instanceof java.net.ConnectException || ex instanceof org.springframework.web.client.ResourceAccessException) {
             return handleMicroserviceNotWorking(exchange, ex);
         } else if (ex instanceof ResponseStatusException) {
             return handleResponseStatusException(exchange, (ResponseStatusException) ex);
-        } else if (ex instanceof JWTException) {
-            return handleJWTException(exchange, (JWTException) ex);
+        } else if (ex instanceof CustomException) {
+            return handleCustomException(exchange, (CustomException) ex);
         } else {
             return Mono.error(ex);
         }        
@@ -51,12 +50,13 @@ public class ExceptionHandler implements ErrorWebExceptionHandler {
             return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
                     .bufferFactory().wrap(jsonResponse.getBytes())));
         } catch (JsonProcessingException jsonProcessingException) {
+            System.out.println("aloooo");
             jsonProcessingException.printStackTrace();
             return Mono.error(new Exception("Something went wrong!"));
         }
     }
 
-    private Mono<Void> handleJWTException(ServerWebExchange exchange, JWTException ex) {
+    private Mono<Void> handleCustomException(ServerWebExchange exchange, CustomException ex) {
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
         exchange.getResponse().setStatusCode(ex.getStatus());
 
