@@ -27,5 +27,5 @@ jobs:
         URI_DICTIONARY_SERVICE: ${{ vars.URI_DICTIONARY_SERVICE }}
         URI_ML_SERVICE: ${{ vars.URI_ML_SERVICE }}
         BASE_PREFIX: ${{ vars.BASE_PREFIX }}
-        AWS_STAGE: ${{ vars.AWS_STAGE }}
-        URI_AWS_SERVICES: ${{ vars.URI_AWS_SERVICES }}
+        AWS_STAGE: ${{ secrets.AWS_STAGE }}
+        URI_AWS_SERVICES: ${{ secrets.URI_AWS_SERVICES }}
