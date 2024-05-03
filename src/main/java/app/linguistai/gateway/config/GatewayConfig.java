@@ -44,12 +44,16 @@ public class GatewayConfig {
 
     public static final HashMap<String, String> ROUTES = new HashMap<>();
 
+    public static String URI_AWS_COMPLETE = "";
+
     @PostConstruct
     public void init() {
         ROUTES.put(AWS_ID, BASE_PREFIX + "/aws/**");
         ROUTES.put(DICTINOARY_SERVICE_ID, BASE_PREFIX + "/dictionary/**");
         ROUTES.put(ML_ID, BASE_PREFIX + "/ml/**");
         ROUTES.put(USER_SERVICE_ID, BASE_PREFIX + "/**");
+
+        URI_AWS_COMPLETE = BASE_PREFIX + "/aws";
 
         System.out.println("Routes initialized: " + ROUTES);
     }
@@ -64,7 +68,7 @@ public class GatewayConfig {
         
         return builder.routes()
                 .route(AWS_ID, r -> r.path(ROUTES.get(AWS_ID))
-                        .filters(f -> f.rewritePath("/api/v1/aws/(?<segment>.*)", "/testing/${segment}")
+                        .filters(f -> f.rewritePath(URI_AWS_COMPLETE + "/(?<segment>.*)", URI_AWS_STAGE + "/${segment}")
                         .filter(filter))
                         .uri(URI_AWS + URI_AWS_STAGE))
                 .route(DICTINOARY_SERVICE_ID, r -> r.path(ROUTES.get(DICTINOARY_SERVICE_ID))
@@ -93,12 +97,6 @@ public class GatewayConfig {
                     // If there's a redirection, log the Location header
                     System.out.println("Redirected URI: " + exchange.getResponse().getHeaders().getLocation());
                 }
-                // Construct the redirected URI without specifying the port
-                // String redirectedURI = exchange.getResponse().getHeaders().getLocation().toString();
-                // if (redirectedURI.contains(":443")) {
-                //     redirectedURI = redirectedURI.replace(":443", "");
-                // }
-                // System.out.println("Redirected to: " + redirectedURI);
                 
                 String redirectedURI = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR).toString();
                 System.out.println("Redirected to: " + redirectedURI);
