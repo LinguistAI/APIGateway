@@ -30,22 +30,6 @@ jobs:
         AWS_STAGE: ${{ secrets.AWS_STAGE }}
         URI_AWS_SERVICES: ${{ secrets.URI_AWS_SERVICES }}
 
-  #   - name: Upload build artifact
-  #     uses: actions/upload-artifact@master
-  #     with:
-  #       name: gateway-dev-artifact
-  #       path: .
-
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #   - name: Download build artifact
-  #     uses: actions/download-artifact@master
-  #     with:
-  #       name: gateway-dev-artifact
-  #       path: .
-
     - name: Login to DockerHub
       uses: docker/login-action@v1
       with:
