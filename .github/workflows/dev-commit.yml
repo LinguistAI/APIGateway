@@ -27,22 +27,8 @@ jobs:
         URI_DICTIONARY_SERVICE: ${{ vars.URI_DICTIONARY_SERVICE }}
         URI_ML_SERVICE: ${{ vars.URI_ML_SERVICE }}
         BASE_PREFIX: ${{ vars.BASE_PREFIX }}
-
-  #   - name: Upload build artifact
-  #     uses: actions/upload-artifact@master
-  #     with:
-  #       name: gateway-dev-artifact
-  #       path: .
-
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #   - name: Download build artifact
-  #     uses: actions/download-artifact@master
-  #     with:
-  #       name: gateway-dev-artifact
-  #       path: .
+        AWS_STAGE: ${{ secrets.AWS_STAGE }}
+        URI_AWS_SERVICES: ${{ secrets.URI_AWS_SERVICES }}
 
     - name: Login to DockerHub
       uses: docker/login-action@v1
