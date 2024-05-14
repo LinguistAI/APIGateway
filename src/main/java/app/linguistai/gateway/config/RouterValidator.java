@@ -13,12 +13,23 @@ import java.util.stream.Collectors;
 @Component
 public class RouterValidator {
 
-
     @Value("${spring.base.prefix}")
     private String BASE_PREFIX;
 
     public static List<Pattern> openApiEndpointPatterns;
+    public static List<Pattern> AWSEndpointPatterns;
 
+    private void initializeAWSEndpoints() {
+        List<String> endpointPatterns = List.of(
+                BASE_PREFIX + "/aws"
+        );
+
+        // Convert endpoint patterns to regex patterns
+        AWSEndpointPatterns = endpointPatterns.stream()
+                .map(Pattern::compile)
+                .collect(Collectors.toList());
+    }
+    
     private void initializeOpenApiEndpoints() {
         List<String> endpointPatterns = List.of(
 
@@ -55,10 +66,15 @@ public class RouterValidator {
     @PostConstruct
     public void init() {
         initializeOpenApiEndpoints();
+        initializeAWSEndpoints();
     }
 
     public Predicate<ServerHttpRequest> isSecured =
             request -> openApiEndpointPatterns.stream()
+                    .noneMatch(pattern -> pattern.matcher(request.getURI().getPath()).matches());
+    
+        public Predicate<ServerHttpRequest> isAWS =
+            request -> AWSEndpointPatterns.stream()
                     .noneMatch(pattern -> pattern.matcher(request.getURI().getPath()).matches());
 
 
