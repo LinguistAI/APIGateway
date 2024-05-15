@@ -64,4 +64,4 @@ jobs:
           docker stop gateway-main
           docker rm gateway-main
           cd /home/tolgaozgun/LinguistAI-main
-          docker-compose up -d
+          docker compose up -d
