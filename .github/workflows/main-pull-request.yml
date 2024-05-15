@@ -29,3 +29,4 @@ jobs:
         BASE_PREFIX: ${{ vars.BASE_PREFIX }}
         AWS_STAGE: ${{ secrets.AWS_STAGE }}
         URI_AWS_SERVICES: ${{ secrets.URI_AWS_SERVICES }}
+        AWS_API_KEY: ${{ secrets.AWS_API_KEY }}
