@@ -19,6 +19,9 @@ public class GatewayConfig {
     @Autowired
     JWTFilter filter;
     
+    @Autowired
+    AWSFilter awsFilter;
+    
     @Value("${spring.base.prefix}")
     private String BASE_PREFIX;
 
@@ -69,7 +72,8 @@ public class GatewayConfig {
         return builder.routes()
                 .route(AWS_ID, r -> r.path(ROUTES.get(AWS_ID))
                         .filters(f -> f.rewritePath(URI_AWS_COMPLETE + "/(?<segment>.*)", URI_AWS_STAGE + "/${segment}")
-                        .filter(filter))
+                        .filter(filter)
+                        .filter(awsFilter))
                         .uri(URI_AWS + URI_AWS_STAGE))
                 .route(DICTINOARY_SERVICE_ID, r -> r.path(ROUTES.get(DICTINOARY_SERVICE_ID))
                         .filters(f -> f.filter(filter))
